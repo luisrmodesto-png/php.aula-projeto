@@ -239,6 +239,19 @@
             btnReduzir.addEventListener('click', () => atualizarPainel(velocidadeAtual - 20));
 
             atualizarPainel(0);
+        
+        function atualizarDados(){
+            fetch('dados.php')
+            .then(Response => Response.json())
+            .then(data => {
+                document.getElementById('velocidade').innerText = data.velocidade;
+                document.getElementById('rpm').innerText = data.rpm;
+            })
+            .catch(erro => console.log("Falha de requisição dos dadows:",erro));
+            atualizarDados();
+            setInterval(atualizarDados,1000);
+        }
+        
         })();
     </script>
 
