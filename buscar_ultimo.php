@@ -1,6 +1,6 @@
 <?php
 $host = 'localhost';
-$dbname = 'nome_do_seu_banco';
+$dbname = 'controle_RPM';
 
 
 try {
