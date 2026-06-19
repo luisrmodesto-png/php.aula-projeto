@@ -1,29 +1,25 @@
 <?php
-$host = 'localhost';
-$dbname = 'controle_RPM';
-
-
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, );
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    echo "Conexão realizada com sucesso!";
-} catch(PDOException $e) {
-    echo "Erro na conexão: por favor coloque suas crendencias " . $e->getMessage();
-}
-$dadosOriginais = [
-    [
-        'nome_teste' => '',
-        'rpm' => '',
-        'ativo_sn'   => ''
-    ]
-];
-echo json_encode([
-    'dados' => $dadosOriginais,
-    ]);
-
-
-
+include("conexão.php");
 
 $SQL = "SELECT * FROM dados ORDER BY id DESC LIMIT 1";
 $result = $pdo->query($SQL);
-if ($result->rowCount() > 0 ) {}
+
+
+if($result->fetch_assoc()){
+
+;
+
+echo json_encode([
+    "velocidade" => $row["velocidade"],
+    "RPM" => $row["RPM"],
+]);
+}else{
+
+echo json_encode([
+    "velocidade" => 0,
+     "RPM" => 0,
+]);
+}
+
+$conn-> close();
+?>

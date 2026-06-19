@@ -1,11 +1,18 @@
 <?php
-include ('conexão.php');
 
-if (isset($_POST['$velocidade']) !empty($_POST['rpm'])) {
-    $vel = $_POST['$velocidade'];
-    $rpm= $_POST['$rpm'];
+$host = 'localhost';
+$dbname = 'meu_banco';
+$username = 'root';
+$password = 'sua_senha';
+
+try{
+
+  
+ 
+    echo "Dados salvos com sucesso no banco de dados!";
+
+} catch(PDOException $e) {
+    echo "Erro: " . $e->getMessage();
 }
-$sql = "INSERT INTO dados (velocidade,rpm) VALUES ('$vel', '$rpm')";
-$pdo->query($sql);
-
 ?>
+
