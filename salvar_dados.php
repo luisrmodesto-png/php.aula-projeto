@@ -1,18 +1,18 @@
 <?php
 
-$host = 'localhost';
-$dbname = 'meu_banco';
-$username = 'root';
-$password = 'sua_senha';
-
 try{
 
   
- 
+ if (isset($_POST['velocidade']) && isset($_POST['RPM'])) {
+$vel = $_POST['velocidade'];
+$rpm = $_POST['RPM'];
     echo "Dados salvos com sucesso no banco de dados!";
 
-} catch(PDOException $e) {
-    echo "Erro: " . $e->getMessage();
+} 
+$sql = "INSERT INTO dados (velocidades,rpm) VAlues ('$vel','$rpm)";
+$pdo ->query($sql);
 }
+
+
 ?>
 
