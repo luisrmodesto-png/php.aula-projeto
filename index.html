@@ -1,31 +1,246 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Monitor de Telemetria Digital</title>
-<style>
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projeto Velocímetro Aula Alexandre</title>
+    <style>
+        :root {
+            --bg-color: #080c14;
+            --card-bg: rgba(21, 29, 48, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #64748b;
+            --neon-blue: #00f2fe;
+            --neon-purple: #4facfe;
+            --accent-glow: rgba(0, 242, 254, 0.2);
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            background-image: radial-gradient(circle at 50% 50%, #1e293b 0%, #080c14 100%);
+        }
+
+        .dashboard-card {
+            background-color: var(--card-bg);
+            padding: 40px;
+            border-radius: 28px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 
+                        0 0 40px var(--accent-glow);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        .velocimetro-container {
+            position: relative;
+            width: 320px;
+            height: 160px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+        }
+
+        .mostrador {
+            width: 320px;
+            height: 320px;
+            background: conic-gradient(
+                from 180deg at 50% 50%,
+                #10b981 0deg,
+                #f59e0b 90deg,
+                #ef4444 150deg,
+                transparent 180deg
+            );
+            border-radius: 50%;
+            position: relative;
+            mask: radial-gradient(circle, transparent 74%, black 75%);
+            -webkit-mask: radial-gradient(circle, transparent 74%, black 75%);
+            opacity: 0.9;
+            filter: drop-shadow(0 0 12px rgba(0, 242, 254, 0.4));
+        }
+
+        .agulha-wrapper {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .agulha {
+            position: absolute;
+            bottom: 0;
+            width: 4px;
+            height: 135px;
+            background: linear-gradient(to top, var(--neon-blue), var(--neon-purple));
+            transform-origin: bottom center;
+            transform: rotate(-90deg); 
+            transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border-radius: 4px;
+            box-shadow: 0 0 15px var(--neon-blue);
+        }
+
+        .pino-central {
+            position: absolute;
+            bottom: -12px;
+            width: 24px;
+            height: 24px;
+            background-color: #151d30;
+            border: 4px solid var(--neon-blue);
+            border-radius: 50%;
+            box-shadow: 0 0 20px var(--neon-blue);
+            z-index: 10;
+        }
+
+        .painel-leitura {
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        .valor-texto {
+            font-size: 64px;
+            font-weight: 800;
+            letter-spacing: -2px;
+            background: linear-gradient(180deg, #ffffff 30%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-variant-numeric: tabular-nums;
+            line-height: 1;
+        }
+
+        .unidade {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            display: block;
+            font-weight: 700;
+        }
+
+        .controles {
+            margin-top: 35px;
+            display: flex;
+            gap: 16px;
+        }
+
+        button {
+            padding: 14px 28px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-main);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+        }
+
+        button:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .btn-acelerar {
+            border-color: rgba(0, 242, 254, 0.4);
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.15), rgba(0, 242, 254, 0.15));
+        }
+
+        .btn-acelerar:hover {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.3);
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.25), rgba(0, 242, 254, 0.25));
+        }
+    </style>
 </head>
 <body>
-<h1>Dados do Velocímetro</h1>
-<div class="valor">Velocidade: <span id="velocidade">0</span> km/h</div>
-<div class="valor">RPM: <span id="rpm">0</span></div>
-<script>
-function atualizarDados() {
-    fetch('dados.php')
-.then(response => response.json())
-.then(data => {
-    document.getElementById('velocidade').innerText =
-data.velocidade;
-document.getElementById('rpm').innerText = data.rpm;
-})
-.catch(error => console.log("Falha na requisição dos dados:",
-error));
-}
-atualizarDados();
-setInterval(atualizarDados, 1000);
 
+    <div class="dashboard-card">
+        <div class="velocimetro-container">
+            <div class="mostrador"></div>
+            <div class="agulha-wrapper">
+                <div class="agulha" id="agulha"></div>
+                <div class="pino-central"></div>
+            </div>
+        </div>
 
-</script>
+        <div class="painel-leitura">
+            <div class="valor-texto" id="valorTexto">0</div>
+            <span class="unidade">km/h</span>
+            
+            <div class="controles">
+                <button id="btnReduzir">− Reduzir</button>
+                <button class="btn-acelerar" id="btnAcelerar">+ Acelerar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        (() => {
+            let velocidadeAtual = 0;
+            let animationFrameId = null;
+            const VELOCIDADE_MAXIMA = 200;
+
+            const agulha = document.getElementById('agulha');
+            const valorTexto = document.getElementById('valorTexto');
+            const btnAcelerar = document.getElementById('btnAcelerar');
+            const btnReduzir = document.getElementById('btnReduzir');
+
+            const animarTexto = (alvo) => {
+                const valorInicial = parseInt(valorTexto.innerText, 10);
+                const duracao = 800;
+                const tempoInicial = performance.now();
+
+                const atualizar = (tempoAtual) => {
+                    const progresso = Math.min((tempoAtual - tempoInicial) / duracao, 1);
+                    const easeProgresso = 1 - Math.pow(1 - progresso, 3);
+                    
+                    const valorCalculado = Math.floor(valorInicial + (alvo - valorInicial) * easeProgresso);
+                    valorTexto.innerText = valorCalculado;
+
+                    if (progresso < 1) {
+                        animationFrameId = requestAnimationFrame(atualizar);
+                    }
+                };
+
+                if (animationFrameId) cancelAnimationFrame(animationFrameId);
+                animationFrameId = requestAnimationFrame(atualizar);
+            };
+
+            const atualizarPainel = (novaVelocidade) => {
+                velocidadeAtual = Math.max(0, Math.min(novaVelocidade, VELOCIDADE_MAXIMA));
+
+                const graus = ((velocidadeAtual / VELOCIDADE_MAXIMA) * 180) - 90;
+
+                agulha.style.transform = `rotate(${graus}deg)`;
+                animarTexto(velocidadeAtual);
+            };
+
+            btnAcelerar.addEventListener('click', () => atualizarPainel(velocidadeAtual + 20));
+            btnReduzir.addEventListener('click', () => atualizarPainel(velocidadeAtual - 20));
+
+            atualizarPainel(0);
+        })();
+    </script>
+
 </body>
 </html>
